@@ -1,6 +1,5 @@
 import os
 import streamlit as st
-from dotenv import load_dotenv
 
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -38,8 +37,6 @@ def find_file_path(file_name):
     return None
 
 
-load_dotenv()
-api_key = os.getenv("OPENAI_API_KEY")
 
 @st.cache_resource
 def process_pdf():
