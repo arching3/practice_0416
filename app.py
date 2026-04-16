@@ -16,10 +16,6 @@ from langchain_core.messages import trim_messages
 
 from pathlib import Path
 
-from pyngrok import ngrok
-public_url = ngrok.connect(8501)
-print("APP Url :", public_url)
-
 
 
 def find_file_path(file_name):
