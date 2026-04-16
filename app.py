@@ -43,10 +43,9 @@ def process_pdf():
 
 @st.cache_resource
 def initialize_vectorstore():
-    chunks = process_pdf()
     embeddings = OpenAIEmbeddings(api_key=api_key)
 
-    db_name = "./faiss.index"
+    db_name = Path(__file__).resolve().parent / "faiss.index"
     if os.path.exists(db_name):
         faiss = FAISS.load_local(
             db_name,
@@ -54,6 +53,7 @@ def initialize_vectorstore():
             allow_dangerous_deserialization=True
         )
     else:
+        chunks = process_pdf()
         faiss = FAISS.from_documents(chunks, embeddings)
         faiss.save_local(db_name)
 
@@ -64,11 +64,12 @@ def initialize_vectorstore():
 def initialize_chain():
     vectorstore = initialize_vectorstore()
     retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+    sessions = {}
 
     template = """당신은 KB 부동산 보고서 전문가입니다. 다음 정보를 바탕으로 사용자의 질문에 답변해주세요.
 
-컨텍스트: {context}
-"""
+    컨텍스트: {context}
+    """
     prompt = ChatPromptTemplate.from_messages([
         ("system", template),
         ("placeholder", "{chat_history}"),
@@ -96,10 +97,15 @@ def initialize_chain():
     )
 
 
+    def get_session_history(session_id):
+        if session_id not in sessions:
+            sessions[session_id] = ChatMessageHistory()
+        return sessions[session_id]
+
     return RunnableWithMessageHistory(
         base_chain,
 
-        lambda session_id: ChatMessageHistory(),
+        get_session_history,
         input_messages_key="question",
         history_messages_key="chat_history",
     )
