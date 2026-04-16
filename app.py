@@ -1,6 +1,5 @@
 import os
 import streamlit as st
-
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
@@ -16,7 +15,7 @@ from langchain_core.messages import trim_messages
 
 from pathlib import Path
 
-
+api_key = os.getenv("OPENAI_API_KEY")
 
 def find_file_path(file_name):
     script_dir = Path(__file__).resolve().parent
